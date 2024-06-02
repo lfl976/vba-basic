@@ -1,0 +1,46 @@
+Sub PrintJSON()
+    Dim json As String
+    Dim row As Integer
+    
+    row = 3
+    
+    json = "{"
+    json = json & PrintJSONObject(row, 2, 4)
+    json = json & "}"
+    
+    Debug.Print json
+End Sub
+
+Function PrintJSONObject(row As Integer, startCol As Integer, sp As Integer) As String
+    Dim json As String
+    Dim key As String
+    Dim value As String
+
+    Do While Not IsEmpty(Cells(row, startCol))
+        key = Cells(row, startCol).value
+        
+        If key = "List" Then
+            Exit Do
+        End If
+        json = json & vbCr & space(sp)
+        If Cells(row, startCol + 1).value = "List" Then
+            json = json & """" & key & """: [ " & vbCr & space(sp + 4) & "{"
+            row = row + 1
+                json = json & PrintJSONObject(row, startCol + 1, sp + 4 + 4)
+            json = json & space(sp + 4) & "} " & vbCr & space(sp) & "],"
+        Else
+            value = Cells(row, 6).value
+            json = json & """" & key & """: """ & value & ""","
+            row = row + 1
+            If Cells(row, startCol).value = key Then
+                json = json & vbCr & space(sp - 4) & "}," & vbCr & space(sp - 4) & "{"
+            End If
+        End If
+    Loop
+    
+    If Right(json, 1) = "," Then
+        json = Left(json, Len(json) - 1)
+    End If
+
+    PrintJSONObject = json & vbCr
+End Function
