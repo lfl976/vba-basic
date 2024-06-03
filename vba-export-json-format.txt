@@ -15,6 +15,7 @@ Function PrintJSONObject(row As Integer, startCol As Integer, sp As Integer) As 
     Dim json As String
     Dim key As String
     Dim value As String
+    Dim thisLoopStr As String
 
     Do While Not IsEmpty(Cells(row, startCol))
         key = Cells(row, startCol).value
@@ -22,6 +23,18 @@ Function PrintJSONObject(row As Integer, startCol As Integer, sp As Integer) As 
         If key = "List" Then
             Exit Do
         End If
+        
+        ' if have repeat key, create another object
+        If InStr(1, thisLoopStr, key, vbTextCompare) > 0 Then
+            If Right(json, 1) = "," Then
+                json = Left(json, Len(json) - 1)
+            End If
+            json = json & vbCr & space(sp - 4) & "}," & vbCr & space(sp - 4) & "{"
+            thisLoopStr = ""
+        End If
+        
+        thisLoopStr = thisLoopStr & "," & key
+        
         json = json & vbCr & space(sp)
         If Cells(row, startCol + 1).value = "List" Then
             json = json & """" & key & """: [ " & vbCr & space(sp + 4) & "{"
@@ -32,9 +45,9 @@ Function PrintJSONObject(row As Integer, startCol As Integer, sp As Integer) As 
             value = Cells(row, 6).value
             json = json & """" & key & """: """ & value & ""","
             row = row + 1
-            If Cells(row, startCol).value = key Then
-                json = json & vbCr & space(sp - 4) & "}," & vbCr & space(sp - 4) & "{"
-            End If
+            'If Cells(row, startCol).value = key Then
+                'json = json & vbCr & space(sp - 4) & "}," & vbCr & space(sp - 4) & "{"
+            'End If
         End If
     Loop
     
